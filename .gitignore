@@ -1,0 +1,21 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+
+# Large data files
+text/
+legal_text_classification.csv
+
+# Generated cache
+.embeddings_cache/
+
+# Test artifacts
+test_server.py
+test_accuracy.py
+report.json
+report.txt
+server.log
+15012282/documents.csv
+.DS_Store
+*.zip

@@ -1,0 +1,12 @@
+pandas
+pyarrow
+sentence-transformers
+faiss-cpu
+numpy
+torch
+rich
+ollama
+pypdf
+python-multipart
+fastapi
+uvicorn

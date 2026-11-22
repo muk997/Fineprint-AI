@@ -1,0 +1,359 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TL;DR Legal</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@500;700&family=Space+Grotesk:wght@400;500;600&display=swap" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            display: ["Fraunces", "serif"],
+            sans: ["Space Grotesk", "sans-serif"],
+          },
+        },
+      },
+    };
+  </script>
+  <style>
+    body {
+      color: #1f1d1a;
+      background:
+        radial-gradient(circle at 20% 20%, rgba(15,118,110,0.12), transparent 45%),
+        radial-gradient(circle at 80% 10%, rgba(245,158,11,0.15), transparent 40%),
+        linear-gradient(135deg, #fbf7f0 0%, #eef7f6 100%);
+    }
+    .glass {
+      background: rgba(255,255,255,0.82);
+      border: 1px solid rgba(15,23,42,0.08);
+      backdrop-filter: blur(10px);
+    }
+    .rise { animation: rise 0.6s ease-out both; }
+    .delay-1 { animation-delay: 0.1s; }
+    @keyframes rise {
+      from { opacity: 0; transform: translateY(18px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .tab-btn { transition: all 0.2s; }
+    .tab-btn.active {
+      background: #0f766e;
+      color: #fff;
+    }
+    #dropZone.drag-over {
+      border-color: #0f766e;
+      background: rgba(15,118,110,0.06);
+    }
+  </style>
+</head>
+<body class="font-sans">
+  <div class="min-h-screen px-4 py-10">
+    <div class="mx-auto flex w-full max-w-6xl flex-col gap-8">
+
+      <header class="flex flex-col gap-3">
+        <p class="text-sm uppercase tracking-[0.3em] text-slate-500">TL;DR Legal</p>
+        <h1 class="font-display text-4xl text-slate-900 sm:text-5xl">Terms you can actually read.</h1>
+        <p class="max-w-2xl text-base text-slate-600">
+          Paste text or upload a PDF — we'll flag the risky clauses using semantic similarity.
+        </p>
+      </header>
+
+      <main class="grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
+
+        <!-- ── Input panel ── -->
+        <section class="glass rise rounded-2xl p-6 shadow-lg flex flex-col gap-5">
+          <div class="flex items-center justify-between">
+            <h2 class="font-display text-2xl text-slate-900">Document Scan</h2>
+            <span class="rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-emerald-700">RAG Pipeline</span>
+          </div>
+
+          <!-- tabs -->
+          <div class="flex gap-2">
+            <button id="tabPaste" class="tab-btn active rounded-full border border-slate-200 px-4 py-1.5 text-xs font-semibold uppercase tracking-wide text-slate-600" onclick="switchTab('paste')">Paste Text</button>
+            <button id="tabPdf"   class="tab-btn rounded-full border border-slate-200 px-4 py-1.5 text-xs font-semibold uppercase tracking-wide text-slate-600" onclick="switchTab('pdf')">Upload PDF</button>
+          </div>
+
+          <!-- paste tab -->
+          <div id="panePaste">
+            <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500">Terms of Service</label>
+            <textarea
+              id="tosInput"
+              class="mt-2 h-72 w-full rounded-xl border border-slate-200 bg-white/70 p-4 text-sm leading-relaxed text-slate-800 shadow-sm focus:border-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-200"
+              placeholder="Paste the full Terms of Service or privacy policy here..."
+            ></textarea>
+          </div>
+
+          <!-- pdf tab -->
+          <div id="panePdf" class="hidden flex-col gap-3">
+            <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500">PDF File</label>
+            <div
+              id="dropZone"
+              class="flex h-48 cursor-pointer flex-col items-center justify-center gap-3 rounded-xl border-2 border-dashed border-slate-300 bg-white/60 transition hover:border-emerald-400 hover:bg-emerald-50/30"
+              onclick="document.getElementById('pdfInput').click()"
+            >
+              <svg class="h-10 w-10 text-slate-400" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m.75 12 3 3m0 0 3-3m-3 3v-6m-1.5-9H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z"/>
+              </svg>
+              <p class="text-sm text-slate-500">Drop a PDF here or <span class="font-semibold text-emerald-600">click to browse</span></p>
+              <p class="text-xs text-slate-400">Max 20 MB</p>
+            </div>
+            <input id="pdfInput" type="file" accept=".pdf" class="hidden" />
+            <div id="pdfInfo" class="hidden rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800"></div>
+          </div>
+
+          <!-- threshold -->
+          <div class="flex items-center gap-3">
+            <label class="text-xs font-semibold uppercase tracking-wider text-slate-500 whitespace-nowrap">Threshold</label>
+            <input id="thresholdInput" type="range" min="0.50" max="0.90" step="0.05" value="0.70"
+              class="w-32 accent-emerald-600"
+              oninput="document.getElementById('thresholdVal').textContent = parseFloat(this.value).toFixed(2)" />
+            <span id="thresholdVal" class="text-xs font-mono text-slate-600">0.70</span>
+          </div>
+
+          <div class="flex flex-wrap items-center gap-3">
+            <button
+              id="scanBtn"
+              class="inline-flex items-center gap-2 rounded-full bg-emerald-600 px-6 py-3 text-sm font-semibold uppercase tracking-wide text-white shadow-md transition hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-70"
+            >
+              <span id="scanSpinner" class="hidden h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent"></span>
+              <span id="scanLabel">Scan</span>
+            </button>
+            <p id="scanStatus" class="text-sm text-slate-500">Awaiting document.</p>
+          </div>
+        </section>
+
+        <!-- ── Results panel ── -->
+        <section class="glass rise delay-1 rounded-2xl p-6 shadow-lg">
+          <div class="flex items-start justify-between gap-4">
+            <div>
+              <h2 class="font-display text-2xl text-slate-900">Report Card</h2>
+              <p class="mt-1 text-sm text-slate-600">Flags, explanations, and a quick risk score.</p>
+            </div>
+            <div class="rounded-xl bg-slate-900 px-4 py-3 text-center text-white">
+              <p class="text-xs uppercase tracking-[0.2em] text-slate-300">High-Risk</p>
+              <p id="riskScore" class="font-display text-3xl">--</p>
+            </div>
+          </div>
+
+          <div class="mt-6 rounded-2xl border border-slate-200 bg-white/80 p-4">
+            <p class="text-xs font-semibold uppercase tracking-wider text-slate-500">Summary</p>
+            <p id="overviewText" class="mt-3 text-sm text-slate-700">
+              Upload a PDF or paste text, then hit Scan.
+            </p>
+          </div>
+
+          <div class="mt-6">
+            <p class="text-xs font-semibold uppercase tracking-wider text-slate-500">Matched Red Flags</p>
+            <div id="flagsList" class="mt-3 grid gap-4"></div>
+          </div>
+
+          <div id="errorBox" class="mt-6 hidden rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700"></div>
+        </section>
+
+      </main>
+    </div>
+  </div>
+
+  <script>
+    // ── state ──────────────────────────────────────────────────────────────
+    let currentTab = "paste";
+    let extractedPdfText = null;
+
+    const scanBtn       = document.getElementById("scanBtn");
+    const scanSpinner   = document.getElementById("scanSpinner");
+    const scanLabel     = document.getElementById("scanLabel");
+    const scanStatus    = document.getElementById("scanStatus");
+    const tosInput      = document.getElementById("tosInput");
+    const overviewText  = document.getElementById("overviewText");
+    const flagsList     = document.getElementById("flagsList");
+    const riskScore     = document.getElementById("riskScore");
+    const errorBox      = document.getElementById("errorBox");
+    const pdfInput      = document.getElementById("pdfInput");
+    const pdfInfo       = document.getElementById("pdfInfo");
+    const dropZone      = document.getElementById("dropZone");
+
+    const severityStyles = {
+      Critical: "border-red-300 bg-red-50 text-red-700",
+      High:     "border-red-200 bg-red-50 text-red-600",
+      Medium:   "border-amber-200 bg-amber-50 text-amber-700",
+      Low:      "border-emerald-200 bg-emerald-50 text-emerald-700",
+    };
+
+    // ── tabs ───────────────────────────────────────────────────────────────
+    function switchTab(tab) {
+      currentTab = tab;
+      document.getElementById("tabPaste").classList.toggle("active", tab === "paste");
+      document.getElementById("tabPdf").classList.toggle("active", tab === "pdf");
+      document.getElementById("panePaste").classList.toggle("hidden", tab !== "paste");
+      document.getElementById("panePdf").classList.toggle("hidden", tab !== "pdf");
+      document.getElementById("panePdf").classList.toggle("flex", tab === "pdf");
+    }
+
+    // ── PDF handling ───────────────────────────────────────────────────────
+    async function handlePdfFile(file) {
+      if (!file || !file.name.toLowerCase().endsWith(".pdf")) {
+        showError("Please select a valid PDF file.");
+        return;
+      }
+      pdfInfo.classList.remove("hidden");
+      pdfInfo.textContent = `Extracting text from "${file.name}"...`;
+      extractedPdfText = null;
+
+      const form = new FormData();
+      form.append("file", file);
+      try {
+        const res = await fetch("/upload-pdf", { method: "POST", body: form });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) throw new Error(data.detail || "PDF extraction failed.");
+        extractedPdfText = data.text;
+        pdfInfo.textContent = `"${file.name}" — ${data.pages} page${data.pages !== 1 ? "s" : ""}, ${data.text.length.toLocaleString()} characters extracted. Ready to scan.`;
+      } catch (err) {
+        pdfInfo.classList.add("hidden");
+        showError(err.message);
+      }
+    }
+
+    pdfInput.addEventListener("change", () => {
+      if (pdfInput.files[0]) handlePdfFile(pdfInput.files[0]);
+    });
+
+    dropZone.addEventListener("dragover", (e) => { e.preventDefault(); dropZone.classList.add("drag-over"); });
+    dropZone.addEventListener("dragleave", () => dropZone.classList.remove("drag-over"));
+    dropZone.addEventListener("drop", (e) => {
+      e.preventDefault();
+      dropZone.classList.remove("drag-over");
+      const file = e.dataTransfer.files[0];
+      if (file) handlePdfFile(file);
+    });
+
+    // ── helpers ────────────────────────────────────────────────────────────
+    function setLoading(on) {
+      scanBtn.disabled = on;
+      scanSpinner.classList.toggle("hidden", !on);
+      scanLabel.textContent = on ? "Scanning" : "Scan";
+      scanStatus.textContent = on ? "Analyzing terms..." : "Awaiting document.";
+    }
+
+    function showError(msg) {
+      errorBox.textContent = msg;
+      errorBox.classList.remove("hidden");
+    }
+
+    function clearError() {
+      errorBox.classList.add("hidden");
+      errorBox.textContent = "";
+    }
+
+    function truncateText(v, n) {
+      return v && v.length > n ? v.slice(0, n).trim() + "..." : (v || "");
+    }
+
+    // ── render ─────────────────────────────────────────────────────────────
+    function renderOverview(flags, summary) {
+      if (!flags || flags.length === 0) {
+        overviewText.textContent = "No semantic matches found above threshold.";
+        return;
+      }
+      const counts = {};
+      flags.forEach((f) => { counts[f.severity] = (counts[f.severity] || 0) + 1; });
+      const breakdown = Object.entries(counts).map(([k, v]) => `${k}: ${v}`).join(" | ");
+      overviewText.innerHTML = `<strong>${flags.length} flags</strong> — ${breakdown}<br/><br/><em>${summary || ""}</em>`;
+    }
+
+    function renderFlags(flags) {
+      flagsList.innerHTML = "";
+      if (!flags || flags.length === 0) {
+        const el = document.createElement("div");
+        el.className = "rounded-xl border border-slate-200 bg-white/70 p-4 text-sm text-slate-600";
+        el.textContent = "No semantic matches detected.";
+        flagsList.appendChild(el);
+        return;
+      }
+      flags.slice(0, 30).forEach((flag) => {
+        const wrap = document.createElement("div");
+        wrap.className = "rounded-xl border border-slate-200 bg-white/80 p-4 shadow-sm";
+
+        const header = document.createElement("div");
+        header.className = "flex items-center justify-between gap-3";
+
+        const title = document.createElement("h3");
+        title.className = "text-sm font-semibold text-slate-900";
+        title.textContent = flag.category || "Matched Clause";
+
+        const badges = document.createElement("div");
+        badges.className = "flex gap-2 shrink-0";
+
+        const srcBadge = document.createElement("span");
+        srcBadge.className = "rounded-full border border-slate-200 bg-slate-50 px-2 py-1 text-xs text-slate-500";
+        srcBadge.textContent = flag.source;
+
+        const sevBadge = document.createElement("span");
+        sevBadge.className = `rounded-full border px-3 py-1 text-xs font-semibold uppercase tracking-wide ${severityStyles[flag.severity] || "border-slate-200 bg-slate-50 text-slate-700"}`;
+        sevBadge.textContent = flag.severity;
+
+        badges.appendChild(srcBadge);
+        badges.appendChild(sevBadge);
+        header.appendChild(title);
+        header.appendChild(badges);
+
+        const snippet = document.createElement("p");
+        snippet.className = "mt-3 text-sm text-slate-600 italic";
+        snippet.textContent = `"${truncateText(flag.paragraph, 200)}"`;
+
+        const desc = document.createElement("p");
+        desc.className = "mt-2 text-sm font-medium text-slate-800";
+        desc.textContent = truncateText(flag.description, 280);
+
+        const score = document.createElement("p");
+        score.className = "mt-1 text-xs text-slate-400";
+        score.textContent = `Similarity: ${(flag.score * 100).toFixed(1)}%`;
+
+        wrap.appendChild(header);
+        wrap.appendChild(snippet);
+        wrap.appendChild(desc);
+        wrap.appendChild(score);
+        flagsList.appendChild(wrap);
+      });
+    }
+
+    // ── scan ───────────────────────────────────────────────────────────────
+    scanBtn.addEventListener("click", async () => {
+      clearError();
+
+      let text = "";
+      if (currentTab === "paste") {
+        text = tosInput.value.trim();
+        if (!text) { showError("Please paste a Terms of Service document before scanning."); return; }
+      } else {
+        if (!extractedPdfText) { showError("Please upload and extract a PDF first."); return; }
+        text = extractedPdfText;
+      }
+
+      const threshold = parseFloat(document.getElementById("thresholdInput").value);
+
+      setLoading(true);
+      try {
+        const res = await fetch("/analyze", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ text, threshold }),
+        });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) throw new Error(data.detail || "Scan failed.");
+
+        riskScore.textContent = data.risk_score ?? "--";
+        renderOverview(data.flags || [], data.summary);
+        renderFlags(data.flags || []);
+      } catch (err) {
+        showError(err.message || "Scan failed.");
+      } finally {
+        setLoading(false);
+      }
+    });
+  </script>
+</body>
+</html>
